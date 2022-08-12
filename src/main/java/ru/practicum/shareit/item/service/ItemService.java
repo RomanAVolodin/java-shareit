@@ -87,7 +87,7 @@ public class ItemService {
 		if (dto.getDescription() != null) {
 			item.setDescription(dto.getDescription());
 		}
-		if (dto.getAvailable() != null){
+		if (dto.getAvailable() != null) {
 			item.setAvailable(dto.getAvailable());
 		}
 

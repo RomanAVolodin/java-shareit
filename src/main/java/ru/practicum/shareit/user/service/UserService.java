@@ -51,7 +51,7 @@ public class UserService {
 			throw new EntityExistsException("Пользователь с таким  email уже существует");
 		}
 		var user = mapper.dtoToUser(dto, idGenerator.getNextId());
-		var generatedUser= storage.create(user);
+		var generatedUser = storage.create(user);
 		return mapper.userToResponse(generatedUser);
 	}
 

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 @Qualifier("memory")
 public class BaseIdCountable {
+
 	protected Long counter = 0L;
+
 	public Long getNextId() {
 		return ++counter;
 	}
