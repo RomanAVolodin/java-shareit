@@ -18,7 +18,7 @@ public class ItemRequestResponseDto {
 	private final String description;
 
 	@NonNull
-	private final UserResponseDto requestor;
+	private final Long requesterId;
 
 	@NonNull
 	private final LocalDate created;

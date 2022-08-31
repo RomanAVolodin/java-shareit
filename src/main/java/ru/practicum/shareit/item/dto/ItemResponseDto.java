@@ -3,10 +3,11 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import ru.practicum.shareit.requests.dto.ItemRequestResponseDto;
-import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -24,7 +25,14 @@ public class ItemResponseDto {
 	private final Boolean available;
 
 	@NonNull
-	private final UserResponseDto owner;
+	private final Long ownerId;
 
-	private final ItemRequestResponseDto request;
+	private final Long requestId;
+
+	private final BookingResponseDto lastBooking;
+
+	private final BookingResponseDto nextBooking;
+
+	@Builder.Default
+	private List<CommentResponseDto> comments = new ArrayList<>();
 }

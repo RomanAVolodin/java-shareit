@@ -16,11 +16,11 @@ public class RequestMapper {
 
 	private final UserMapper userMapper;
 
-	public ItemRequest dtoToRequest(ItemRequestCreateDto dto, Long id, User requestor, LocalDate created) {
+	public ItemRequest dtoToRequest(ItemRequestCreateDto dto, Long id, Long requesterId, LocalDate created) {
 		return ItemRequest.builder()
 				.id(id)
 				.description(dto.getDescription())
-				.requestor(requestor)
+				.requesterId(requesterId)
 				.created(created)
 				.build();
 	}
@@ -29,7 +29,7 @@ public class RequestMapper {
 		return ItemRequestResponseDto.builder()
 				.id(request.getId())
 				.description(request.getDescription())
-				.requestor(userMapper.userToResponse(request.getRequestor()))
+				.requesterId(request.getRequesterId())
 				.created(request.getCreated())
 				.build();
 	}

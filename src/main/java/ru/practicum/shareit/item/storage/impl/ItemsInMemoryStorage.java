@@ -17,7 +17,7 @@ public class ItemsInMemoryStorage implements ItemsStorageDao {
 	@Override
 	public List<Item> findAll(Long ownerId) {
 		return items.values().stream().filter(
-				item -> item.getOwner().getId().equals(ownerId)
+				item -> item.getOwnerId().equals(ownerId)
 		).collect(Collectors.toList());
 	}
 

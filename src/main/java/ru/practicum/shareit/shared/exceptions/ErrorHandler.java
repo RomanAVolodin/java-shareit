@@ -45,6 +45,12 @@ public class ErrorHandler {
 
 	@ExceptionHandler
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Map<String, String> badRequest(final BadRequestException ex) {
+		return Map.of("error", ex.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public Map<String, String> methodArgumentNotValid(final MethodArgumentNotValidException ex) {
 		List<String> errors = new ArrayList<String>();
 		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -59,6 +65,12 @@ public class ErrorHandler {
 	@ExceptionHandler
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public Map<String, String> notFoundException(final ItemNotFoundException e) {
+		return Map.of("error", Objects.requireNonNull(e.getMessage()));
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public Map<String, String> alreadyExistsException(final EntityExistsException e) {
 		return Map.of("error", Objects.requireNonNull(e.getMessage()));
 	}
 }

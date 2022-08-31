@@ -18,7 +18,7 @@ public class ItemRequest {
 	private String description;
 
 	@NonNull
-	private User requestor;
+	private Long requesterId;
 
 	@NonNull
 	private LocalDate created;
