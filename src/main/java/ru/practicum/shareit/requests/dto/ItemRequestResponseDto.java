@@ -3,7 +3,6 @@ package ru.practicum.shareit.requests.dto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import java.time.LocalDate;
 
