@@ -17,11 +17,9 @@ import ru.practicum.shareit.shared.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
