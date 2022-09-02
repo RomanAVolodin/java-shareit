@@ -19,6 +19,10 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 
@@ -53,7 +57,7 @@ public class BookingService {
             throw new BadRequestException("Продолжительность аренды не верно указана");
         }
 
-        if (item.getOwnerId().equals(userId)) {
+        if (Objects.equals(item.getOwnerId(), userId)) {
             throw new ItemNotFoundException("Пользователь id = "
                     + userId + " является владельцем предмета id = " + bookingCreateDto.getItemId());
         }
@@ -73,13 +77,12 @@ public class BookingService {
         var item = itemRepository.findById(booking.getItemId()).orElseThrow(
                 () -> new ItemNotFoundException("Предмет не найден по id")
         );
-        if (booking.getStatus().equals(BookingStatus.APPROVED) && approved) {
+        if (booking.getStatus() == BookingStatus.APPROVED && approved) {
             throw new BadRequestException("Бронирование уже подтверждено");
         }
-        if (!item.getOwnerId().equals(userId)) {
+        if (!item.getOwnerId().equals(user.getId())) {
             throw new ItemNotFoundException("Подтверждение доступно только владельцу");
         }
-
 
         if (approved.equals(Boolean.TRUE)) {
             booking.setStatus(BookingStatus.APPROVED);
@@ -115,7 +118,12 @@ public class BookingService {
         if (state == null) {
             state = BookingState.ALL;
         }
-        return processBookingsForBooker(userId, state);
+        return processBookingsForUser(
+                user.getId(),
+                state,
+                bookingRepository::findAllByBookerIdOrderByDateEndDesc,
+                bookingRepository::findAllByBookerIdAndStatusOrderByDateEndDesc
+        );
     }
 
     @Transactional(readOnly = true)
@@ -126,56 +134,32 @@ public class BookingService {
         if (state == null) {
             state = BookingState.ALL;
         }
-        return processBookingsForOwner(userId, state);
+
+        return processBookingsForUser(
+                user.getId(),
+                state,
+                bookingRepository::findAllByOwnerIdOrderByEndDesc,
+                bookingRepository::findAllByOwnerIdAndStatusOrderByEndDesc
+        );
     }
 
-    private List<BookingResponseDto> processBookingsForOwner(Long userId, BookingState state) {
-        List<Booking> resultBookings = new ArrayList<>();
-        List<Booking> bookings = bookingRepository.findAllByOwnerIdOrderByEndDesc(userId);
+    private List<BookingResponseDto> processBookingsForUser(
+            Long userId,
+            BookingState state,
+            LongFunction<List<Booking>> findAllByUserIdOrderByEndDesc,
+            BiFunction<Long, BookingStatus, List<Booking>> findAllByUserIdAndStatusOrderByEndDesc
+    ) {
+        List<Booking> resultBookings;
+        List<Booking> bookings = findAllByUserIdOrderByEndDesc.apply(userId);
         switch (state) {
             case ALL:
-                resultBookings = bookingRepository.findAllByOwnerIdOrderByEndDesc(userId);
+                resultBookings = bookings;
                 break;
             case WAITING:
-                resultBookings = bookingRepository.findAllByOwnerIdAndStatusOrderByEndDesc(userId, BookingStatus.WAITING);
+                resultBookings = findAllByUserIdAndStatusOrderByEndDesc.apply(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                resultBookings = bookingRepository.findAllByOwnerIdAndStatusOrderByEndDesc(userId, BookingStatus.REJECTED);
-                break;
-            case PAST:
-                resultBookings = bookings.stream()
-                        .filter(b -> b.getDateEnd().isBefore(LocalDateTime.now()))
-                        .collect(Collectors.toList());
-                break;
-            case CURRENT:
-                resultBookings = bookings.stream()
-                        .filter(b -> b.getDateStart()
-                                .isBefore(LocalDateTime.now()) && b.getDateEnd().isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toList());
-                break;
-            case FUTURE:
-                resultBookings = bookings.stream()
-                        .filter(b -> b.getDateEnd().isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toList());
-                break;
-            default:
-                throw new BadRequestException("Unknown state: " + state);
-        }
-        return resultBookings.stream().map(bookingMapper::bookingToResponse).collect(Collectors.toList());
-    }
-
-    private List<BookingResponseDto> processBookingsForBooker(Long userId, BookingState state) {
-        List<Booking> resultBookings = new ArrayList<>();
-        List<Booking> bookings = bookingRepository.findAllByBookerIdOrderByDateEndDesc(userId);
-        switch (state) {
-            case ALL:
-                resultBookings = bookingRepository.findAllByBookerIdOrderByDateEndDesc(userId);
-                break;
-            case WAITING:
-                resultBookings = bookingRepository.findAllByBookerIdAndStatusOrderByDateEndDesc(userId, BookingStatus.WAITING);
-                break;
-            case REJECTED:
-                resultBookings = bookingRepository.findAllByBookerIdAndStatusOrderByDateEndDesc(userId, BookingStatus.REJECTED);
+                resultBookings = findAllByUserIdAndStatusOrderByEndDesc.apply(userId, BookingStatus.REJECTED);
                 break;
             case PAST:
                 resultBookings = bookings.stream()
