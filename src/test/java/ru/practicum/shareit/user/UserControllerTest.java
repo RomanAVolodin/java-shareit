@@ -58,7 +58,7 @@ public class UserControllerTest {
 
 
 	@Test
-	void EmptyUserIsNotOk() throws Exception {
+	void emptyUserIsNotOk() throws Exception {
 		var userDto = new UserCreateDto("aaaaa", "aaaa");
 
 		this.mvc.perform(post("/users")
