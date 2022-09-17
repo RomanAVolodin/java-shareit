@@ -4,9 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import javax.validation.constraints.FutureOrPresent;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -16,17 +18,19 @@ public class BookingResponseDto {
 	private Long id;
 
 	@FutureOrPresent
-	private LocalDate start;
+	private LocalDateTime start;
 
 	@FutureOrPresent
-	private LocalDate end;
+	private LocalDateTime end;
 
 	@NonNull
-	private Long item;
+	private Long itemId;
 
-	@NonNull
-	private Long booker;
+	private ItemResponseDto item;
 
-	@NonNull
+	private Long bookerId;
+
+	private UserResponseDto booker;
+
 	private BookingStatus status;
 }

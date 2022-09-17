@@ -1,31 +1,46 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
-import ru.practicum.shareit.requests.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+import lombok.*;
+import ru.practicum.shareit.booking.model.Booking;
 
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Builder
+@Entity
 @Data
+@Table(name = "items")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Item {
 
-	@NonNull
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotBlank
+	@Column(name = "name")
 	private String name;
 
-	@NonNull
+	@Column(name = "description")
 	private String description;
 
-	@NonNull
+	@Column(name = "available")
 	private Boolean available;
 
-	@NonNull
-	private User owner;
+	@Column(name = "owner_id")
+	private Long ownerId;
 
-	private ItemRequest request;
+	@Column(name = "request_id")
+	private Long requestId;
+
+	@Transient
+	private Booking lastBooking;
+
+	@Transient
+	private Booking nextBooking;
+
+	@Transient
+	@Builder.Default
+	private List<Comment> comments = new ArrayList<>();
 }

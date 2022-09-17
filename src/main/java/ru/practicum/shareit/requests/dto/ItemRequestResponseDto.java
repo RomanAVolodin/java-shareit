@@ -3,7 +3,6 @@ package ru.practicum.shareit.requests.dto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import java.time.LocalDate;
 
@@ -18,7 +17,7 @@ public class ItemRequestResponseDto {
 	private final String description;
 
 	@NonNull
-	private final UserResponseDto requestor;
+	private final Long requesterId;
 
 	@NonNull
 	private final LocalDate created;

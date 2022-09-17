@@ -1,31 +1,59 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 @Component
+@RequiredArgsConstructor
 public class BookingMapper {
 
-	public Booking dtoToBooking(BookingCreateDto dto, Long id) {
+	private UserMapper userMapper;
+	private final UserRepository userRepository;
+	private final ItemRepository itemRepository;
+	private final ItemMapper itemMapper;
+
+	@Autowired
+	public BookingMapper(
+			@Lazy ItemMapper itemMapper,
+			@Lazy UserMapper userMapper,
+			UserRepository userRepository,
+			ItemRepository itemRepository
+	) {
+		this.itemMapper = itemMapper;
+		this.userMapper = userMapper;
+		this.userRepository = userRepository;
+		this.itemRepository = itemRepository;
+	}
+
+	public Booking dtoToBooking(BookingCreateDto dto, Long userId) {
 		return Booking.builder()
-				.id(id)
-				.start(dto.getStart())
-				.end(dto.getEnd())
-				.item(dto.getItem())
-				.booker(dto.getBooker())
-				.status(dto.getStatus())
+				.dateStart(dto.getStart())
+				.dateEnd(dto.getEnd())
+				.itemId(dto.getItemId())
+				.bookerId(userId)
 				.build();
 	}
 
 	public BookingResponseDto bookingToResponse(Booking booking) {
+		var item = itemRepository.getById(booking.getItemId());
+		var booker = userRepository.getById(booking.getBookerId());
 		return BookingResponseDto.builder()
 				.id(booking.getId())
-				.start(booking.getStart())
-				.end(booking.getEnd())
-				.item(booking.getItem())
-				.booker(booking.getBooker())
+				.start(booking.getDateStart())
+				.end(booking.getDateEnd())
+				.itemId(booking.getItemId())
+				.item(itemMapper.itemToResponse(item))
+				.booker(userMapper.userToResponse(booker))
+				.bookerId(booking.getBookerId())
 				.status(booking.getStatus())
 				.build();
 	}
