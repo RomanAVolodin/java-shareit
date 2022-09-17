@@ -27,24 +27,23 @@ public class BookingResponseDtoTest {
 
 	@Test
 	void testItemDto() throws Exception {
-
+		var dateStart = LocalDateTime.now().minusDays(2);
+		var dateEnd = LocalDateTime.now().minusDays(1);
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
 				.id(1L)
-				.start(LocalDateTime.now().minusDays(2))
-				.end(LocalDateTime.now().minusDays(1))
-				.item(ItemResponseDto.builder().id(7L).name("Test item").available(true).ownerId(1L).build()).status(BookingStatus.APPROVED)
+				.start(dateStart)
+				.end(dateEnd)
+				.item(ItemResponseDto.builder()
+						.id(7L).name("Test item").available(true).ownerId(1L).build()).status(BookingStatus.APPROVED)
 				.booker(UserResponseDto.builder().id(5L).name("User1").build())
 				.itemId(7L)
 				.build();
 
 		JsonContent<BookingResponseDto> result = json.write(bookingResponseDto);
 
-
-		LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-		LocalDateTime beforeYesterday = LocalDateTime.now().minusDays(2);
 		DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE_TIME;
-		String yesterdayStr = yesterday.truncatedTo(ChronoUnit.SECONDS).format(dtf);
-		String beforeYesterdayStr = beforeYesterday.truncatedTo(ChronoUnit.SECONDS).format(dtf);
+		String yesterdayStr = dateEnd.truncatedTo(ChronoUnit.SECONDS).format(dtf);
+		String beforeYesterdayStr = dateStart.truncatedTo(ChronoUnit.SECONDS).format(dtf);
 		assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
 		assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(beforeYesterdayStr);
 		assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(yesterdayStr);
