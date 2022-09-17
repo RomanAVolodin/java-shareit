@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,93 +9,62 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.ItemRepository;
-import ru.practicum.shareit.requests.RequestMapper;
-import ru.practicum.shareit.requests.dto.ItemRequestResponseDto;
-import ru.practicum.shareit.requests.model.ItemRequest;
-import ru.practicum.shareit.requests.service.ItemRequestService;
-import ru.practicum.shareit.requests.storage.ItemRequestRepository;
 import ru.practicum.shareit.shared.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.user.dto.UserCreateDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storage.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Import(ValidationAutoConfiguration.class)
-public class RequestServiceTest {
-
-	@Mock
-	private ItemRequestRepository itemRequestRepository;
-
-	@Mock
-	private UserRepository userRepository;
-
-	@Mock
-	private ItemRepository itemRepository;
-
-	@Mock
-	private RequestMapper mapper;
-
-	@InjectMocks
-	private ItemRequestService service;
+public class UserServiceTest {
 
 	User firstUser;
-
-	ItemRequest itemRequest;
-
-	Item item;
-
-	ItemRequestResponseDto itemRequestResponseDto;
+	UserResponseDto userResponseDto;
+	UserCreateDto userCreateDto;
+	@Mock
+	private UserRepository userRepository;
+	@Mock
+	private UserMapper mapper;
+	@InjectMocks
+	private UserService service;
 
 	@BeforeEach
-	void setUp(){
-		firstUser = User.builder().id(1L).name("First User").build();
-		itemRequest = ItemRequest.builder().id(1L).build();
-		item = Item.builder().id(1L).build();
-		itemRequestResponseDto = ItemRequestResponseDto.builder()
-				.id(1L)
-				.requesterId(1L)
-				.created(LocalDateTime.now())
-				.description("descr")
-				.build();
+	void setUp() {
+		firstUser = User.builder().id(1L).name("First User").email("mail@mail.ru").build();
+		userResponseDto = UserResponseDto.builder().id(1L).name("First User").email("mail@mail.ru").build();
+		userCreateDto = new UserCreateDto("mail@mail.ru", "First User");
 	}
 
 	@Test
-	void checkGetRequestByIdThrowException() {
+	void checkGetByIdThrowException() {
 		when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-		Assertions.assertThrows(ItemNotFoundException.class, () -> service.getRequestByID(1L, 1L));
+		Assertions.assertThrows(ItemNotFoundException.class, () -> service.getById(1L));
 	}
 
 	@Test
-	void checkGetRequestByIdItemDoesNotExistThrowException() {
-		when(userRepository.findById(any())).thenReturn(Optional.of(firstUser));
-		when(itemRequestRepository.findById(any())).thenReturn(Optional.empty());
+	void checkCreateSuccess() {
+		when(mapper.dtoToUser(any())).thenReturn(firstUser);
+		when(userRepository.save(any())).thenReturn(firstUser);
+		when(mapper.userToResponse(any())).thenReturn(userResponseDto);
 
-		Assertions.assertThrows(ItemNotFoundException.class, () -> service.getRequestByID(1L, 1L));
+		var result = service.create(userCreateDto);
+		Assertions.assertEquals(result.getId(), userResponseDto.getId());
+		Assertions.assertEquals(result.getEmail(), userResponseDto.getEmail());
+		Assertions.assertEquals(result.getName(), userResponseDto.getName());
 	}
 
 	@Test
-	void checkGetRequestByIDSuccess() {
-		when(userRepository.findById(any())).thenReturn(Optional.of(firstUser));
-		when(itemRequestRepository.findById(any())).thenReturn(Optional.of(itemRequest));
-		when(itemRepository.findAllByRequestIdOrderByIdAsc(any())).thenReturn(List.of(item));
-		when(mapper.requestToResponse(any())).thenReturn(itemRequestResponseDto);
-
-		Assertions.assertEquals(service.getRequestByID(3L, 1L).getId(), 1);
-	}
-
-	@Test
-	void checkGetRequestListByPagesThrowException() {
+	void checkDeleteThrowException() {
 		when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-		Assertions.assertThrows(ItemNotFoundException.class, () -> service.getRequestListByPages(1L, 1, 10));
+		Assertions.assertThrows(ItemNotFoundException.class, () -> service.delete(1L));
 	}
 }

@@ -6,31 +6,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import ru.practicum.shareit.ErrorHandler;
-import ru.practicum.shareit.exception.NotFoundException;
-
-import ru.practicum.shareit.user.dto.UserDto;
-
+import ru.practicum.shareit.shared.exceptions.ErrorHandler;
+import ru.practicum.shareit.shared.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.user.dto.UserCreateDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,132 +33,64 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(ValidationAutoConfiguration.class)
 public class UserControllerTest {
 
-    @Mock
-    private UserService userService;
+	private final ObjectMapper mapper = new ObjectMapper();
+	@InjectMocks
+	UserController controller;
 
-    @InjectMocks
-    UserController controller;
+	UserCreateDto userCreateDto;
 
-    UserDto userDto;
-    MockMvc mvc;
+	UserResponseDto userResponseDto;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+	MockMvc mvc;
+	@Mock
+	private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        mvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .setControllerAdvice(new ErrorHandler())
-                .build();
-        userDto = new UserDto("name", "some@email.com");
-    }
+	@BeforeEach
+	void setUp() {
+		mvc = MockMvcBuilders
+				.standaloneSetup(controller)
+				.setControllerAdvice(new ErrorHandler())
+				.build();
+
+		userResponseDto = UserResponseDto.builder().id(1L).name("First User").email("mail@mail.ru").build();
+		userCreateDto = new UserCreateDto("mail@mail.ru", "First User");
+	}
 
 
-    @Test
-    void EmptyUserIsNotOk() throws Exception {
-        UserDto userDto = new UserDto();
+	@Test
+	void EmptyUserIsNotOk() throws Exception {
+		var userDto = new UserCreateDto("aaaaa", "aaaa");
 
-        this.mvc.perform(post("/users")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                        .andExpect(status().isBadRequest());
-    }
+		this.mvc.perform(post("/users")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(userDto)))
+				.andExpect(status().isBadRequest());
+	}
 
-    @Test
-    void create() throws Exception {
-        userDto.setId(1L);
-      when(userService.create(any())).thenReturn(userDto);
+	@Test
+	void create() throws Exception {
+		when(userService.create(any())).thenReturn(userResponseDto);
 
-        this.mvc.perform(post("/users")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)));
-    }
+		this.mvc.perform(post("/users")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(userCreateDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(1)));
+	}
 
-    @Test
-    void patchReturnNotFound() throws Exception {
+	@Test
+	void patchReturnNotFound() throws Exception {
+		when(userService.update(any(), any())).thenThrow(new ItemNotFoundException("не найден пользователь"));
 
-        when(userService.update(any(),anyLong())).thenThrow(new NotFoundException("не найден пользователь"));
-
-        this.mvc.perform(patch("/users/1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void patchReturnUpdatedUser() throws Exception {
-
-        userDto.setName("newName");
-        when(userService.update(any(),anyLong())).thenReturn(userDto);
-
-        this.mvc.perform(patch("/users/1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(userDto)))
-                .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.name", is("newName")));
-    }
-
-    @Test
-    void returnNotFoundException() throws Exception {
-        Mockito.doThrow(new NotFoundException("not found")).when(userService).delete(anyLong());
-        this.mvc.perform(delete("/users/1"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void returnEmptyUserListIsOk() throws Exception {
-        List<UserDto> userDtos = new ArrayList<>();
-        when(userService.getUsers()).thenReturn(userDtos);
-        this.mvc.perform(get("/users")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(0)));
-    }
-    @Test
-    void return2UserListIsOk() throws Exception {
-        UserDto userDto1 = new UserDto("myName","someOther@email.com");
-        List<UserDto> userDtos = Arrays.asList(userDto,userDto1);
-        when(userService.getUsers()).thenReturn(userDtos);
-        this.mvc.perform(get("/users")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(2)));
-    }
-
-    @Test
-    void returnUserByNumberIsOk() throws Exception {
-        userDto.setId(1L);
-        when(userService.getUserById(anyLong())).thenReturn(userDto);
-        this.mvc.perform(get("/users/1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)));
-    }
-
-    @Test
-    void returnUserByNumberNotFound() throws Exception {
-        when(userService.getUserById(anyLong())).thenThrow(new NotFoundException("не найден"));
-        this.mvc.perform(get("/users/1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
+		this.mvc.perform(patch("/users/1")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(new UserUpdateDto("mail@mail.ru", "name"))))
+				.andExpect(status().isNotFound());
+	}
 }

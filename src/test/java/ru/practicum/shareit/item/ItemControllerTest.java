@@ -14,8 +14,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,135 +32,108 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(ValidationAutoConfiguration.class)
 public class ItemControllerTest {
 
-    @Mock
-    private ItemService itemService;
+	private final ObjectMapper mapper = new ObjectMapper();
+	ItemResponseDto itemResponseDto;
+	ItemResponseDto itemResponseDto2;
+	ItemCreateDto itemCreateDto;
+	@Mock
+	private ItemService itemService;
+	@InjectMocks
+	private ItemController itemController;
+	private MockMvc mvc;
 
-    @Mock
-    private ItemRepository itemRepository;
+	@BeforeEach
+	void setUp() {
+		itemResponseDto = ItemResponseDto.builder().id(1L).name("Item1").available(true).ownerId(1L).build();
+		itemResponseDto2 = ItemResponseDto.builder().id(1L).name("Item1").available(true).ownerId(1L).build();
+		itemCreateDto = new ItemCreateDto("name", "descr", true, 1L);
 
-    @InjectMocks
-    private ItemController itemController;
+		mvc = MockMvcBuilders
+				.standaloneSetup(itemController)
+				.build();
+		mapper.registerModule(new JSR310Module());
+	}
 
-    private final ObjectMapper mapper = new ObjectMapper();
+	@Test
+	void searchAvailable() throws Exception {
+		when(itemService.searchAvailable(anyString(), anyInt(), anyInt()))
+				.thenReturn(Arrays.asList(itemResponseDto, itemResponseDto2));
+		this.mvc.perform(get("/items/search")
+						.header("X-Sharer-User-Id", "1")
+						.param("from", "0")
+						.param("size", "10")
+						.param("text", "good")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)));
+	}
 
-    ItemDto itemDto;
-    ItemDto itemDto2;
-    private MockMvc mvc;
+	@Test
+	void getAll() throws Exception {
+		when(itemService.getAll(anyLong(), anyInt(), anyInt()))
+				.thenReturn(Arrays.asList(itemResponseDto, itemResponseDto2));
+		this.mvc.perform(get("/items")
+						.header("X-Sharer-User-Id", "1")
+						.param("from", "0")
+						.param("size", "10")
+						.param("text", "good")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)));
+	}
 
-    @BeforeEach
-    void setUp() {
+	@Test
+	void createSuccess() throws Exception {
+		when(itemService.create(any(), anyLong()))
+				.thenReturn(itemResponseDto);
+		this.mvc.perform(post("/items")
+						.header("X-Sharer-User-Id", "1")
+						.content(mapper.writeValueAsString(itemCreateDto))
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", Matchers.is(itemResponseDto.getId()), Long.class));
+	}
 
-        itemDto = new ItemDto("Screw", "Good screw", true);
-        itemDto.setId(1L);
-        itemDto = new ItemDto("Hummer", "Good hummer", false);
-        itemDto.setId(2L);
-        mvc = MockMvcBuilders
-                .standaloneSetup(itemController)
-                .build();
-        mapper.registerModule(new JSR310Module());
-    }
+	@Test
+	void createShouldFail() throws Exception {
+		itemCreateDto.setName("");
+		this.mvc.perform(post("/items")
+						.header("X-Sharer-User-Id", "1")
+						.content(mapper.writeValueAsString(itemCreateDto))
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
 
-    // Метод, который добавляет новый объект
-    @Test
-    void create() throws Exception {
-        when(itemService.create(any(), anyLong())).thenReturn(itemDto);
+	@Test
+	void findItemById() throws Exception {
+		when(itemService.findByUserIdAndItemId(1L, 1L)).thenReturn(itemResponseDto);
 
-        this.mvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(mapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.is(itemDto.getId()), Long.class));
-    }
+		this.mvc.perform(get("/items/1")
+						.header("X-Sharer-User-Id", "1")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", Matchers.is(itemResponseDto.getId()), Long.class));
+	}
 
-
-    @Test
-    void update() throws Exception {
-        itemDto.setAvailable(false);
-        when(itemService.update(any(), anyLong(), anyLong())).thenReturn(itemDto);
-
-        this.mvc.perform(patch("/items/1")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(mapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.available", Matchers.is(itemDto.getAvailable())));
-    }
-
-    // Метод по получению всех объектов пользователя
-    @Test
-    void getUserItems() throws Exception {
-        when(itemService.getUserItems(anyLong(), anyInt(), anyInt())).thenReturn(Arrays.asList(itemDto,itemDto2));
-
-        this.mvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "0")
-                        .param("size", "10")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
-    }
-
-    // Метод по получению одного объекта
-    @Test
-    void getOne() throws Exception {
-        when(itemService.getItemByIdForOwnerOrForUser(1L, 1L)).thenReturn(itemDto);
-
-        this.mvc.perform(get("/items/1")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(mapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.is(itemDto.getId()), Long.class));
-
-    }
-
-    @Test
-    void searchNameAndDesc() throws Exception {
-        when(itemService.searchNameAndDesc(anyString(), anyInt(), anyInt())).thenReturn(Arrays.asList(itemDto2,itemDto));
-        this.mvc.perform(get("/items/search")
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "0")
-                        .param("size", "10")
-                        .param("text", "good")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
-    }
-
-    // Метод для добавления комментариев
-
-    @Test
-    void addComment() throws Exception {
-        CommentDto commentDto = new CommentDto();
-     //   commentDto.setId(1L);
-        commentDto.setText("good hummer");
-     //   commentDto.setCreated(LocalDateTime.now());
-        when(itemService.createComment(anyLong(), anyLong(), any())).thenReturn(commentDto);
-
-        this.mvc.perform(post("/items/1/comment")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(mapper.writeValueAsString(commentDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.text", Matchers.is(("good hummer"))));
-
-
-    }
-
-
+	@Test
+	void deleteItemById() throws Exception {
+		this.mvc.perform(delete("/items/1")
+						.header("X-Sharer-User-Id", "1")
+						.characterEncoding(StandardCharsets.UTF_8)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+	}
 }
 
 

@@ -1,24 +1,30 @@
 package ru.practicum.shareit.requests.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequestResponseDto {
 
 	@NonNull
-	private final Long id;
+	private Long id;
 
 	@NonNull
-	private final String description;
+	private String description;
 
 	@NonNull
-	private final Long requesterId;
+	private Long requesterId;
 
 	@NonNull
-	private final LocalDate created;
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private LocalDateTime created;
+
+	private List<ItemResponseDto> items;
 }

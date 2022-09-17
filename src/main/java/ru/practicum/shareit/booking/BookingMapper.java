@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking;
 
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -13,13 +13,13 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.storage.UserRepository;
 
 @Component
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class BookingMapper {
 
 	private UserMapper userMapper;
-	private final UserRepository userRepository;
-	private final ItemRepository itemRepository;
-	private final ItemMapper itemMapper;
+	private UserRepository userRepository;
+	private ItemRepository itemRepository;
+	private ItemMapper itemMapper;
 
 	@Autowired
 	public BookingMapper(
