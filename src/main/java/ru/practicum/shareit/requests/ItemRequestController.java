@@ -25,8 +25,7 @@ public class ItemRequestController {
 	@PostMapping
 	public ItemRequestResponseDto create(
 			@RequestHeader("X-Sharer-User-Id") Long requesterId,
-			@Valid @RequestBody ItemRequestCreateDto itemRequestDto)
-	{
+			@Valid @RequestBody ItemRequestCreateDto itemRequestDto) {
 		return itemRequestService.create(itemRequestDto, requesterId);
 	}
 
@@ -38,17 +37,15 @@ public class ItemRequestController {
 	@GetMapping("/all")
 	public List<ItemRequestResponseDto> getRequestListByPages(
 			@RequestHeader("X-Sharer-User-Id") Long userId,
-			@RequestParam (name="from", defaultValue = "0") @Min(0) Integer from,
-			@RequestParam (name="size", defaultValue = "10") @Min(1) Integer size)
-	{
+			@RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+			@RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size) {
 		return itemRequestService.getRequestListByPages(userId, from, size);
 	}
 
 	@GetMapping("{requestId}")
 	public ItemRequestResponseDto getRequestById(
 			@RequestHeader("X-Sharer-User-Id") Long userId,
-			@PathVariable long requestId)
-	{
+			@PathVariable long requestId) {
 		return itemRequestService.getRequestByID(userId, requestId);
 	}
 }

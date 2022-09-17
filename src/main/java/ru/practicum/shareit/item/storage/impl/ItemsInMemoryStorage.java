@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.dao.ItemsStorageDao;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -27,7 +29,7 @@ public class ItemsInMemoryStorage implements ItemsStorageDao {
 				i -> i.getAvailable() && !searchField.isBlank() &&
 						(
 								i.getName().toLowerCase().contains(searchField.toLowerCase()) ||
-								i.getDescription().toLowerCase().contains(searchField.toLowerCase())
+										i.getDescription().toLowerCase().contains(searchField.toLowerCase())
 						)
 		).collect(Collectors.toList());
 	}

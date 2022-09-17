@@ -52,8 +52,8 @@ public class BookingController {
 	public List<BookingResponseDto> findAllForUser(
 			@RequestHeader("X-Sharer-User-Id") Long userId,
 			@RequestParam(value = "state", required = false) BookingState state,
-			@RequestParam (name="from", defaultValue = "0") @Min(0) int from,
-			@RequestParam (name="size", defaultValue = "10") @Min(1) int size
+			@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+			@RequestParam(name = "size", defaultValue = "10") @Min(1) int size
 	) {
 		return bookingService.findAllForUser(userId, state, from, size);
 	}
@@ -62,8 +62,8 @@ public class BookingController {
 	public List<BookingResponseDto> findAllForOwner(
 			@RequestHeader("X-Sharer-User-Id") Long userId,
 			@RequestParam(value = "state", required = false) BookingState state,
-			@RequestParam (name="from", defaultValue = "0") @Min(0) int from,
-			@RequestParam (name="size", defaultValue = "10") @Min(1) int size
+			@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+			@RequestParam(name = "size", defaultValue = "10") @Min(1) int size
 	) {
 		return bookingService.findAllForOwner(userId, state, from, size);
 	}

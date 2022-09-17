@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ItemMapper {
 
 	private final BookingMapper bookingMapper;
-	private CommentMapper commentMapper;
+	private final CommentMapper commentMapper;
 
 	@Autowired
 	public ItemMapper(@Lazy BookingMapper bookingMapper, @Lazy CommentMapper commentMapper) {

@@ -14,96 +14,96 @@ import java.util.Optional;
 @AllArgsConstructor
 public class OffsetBasedPaginator implements Pageable {
 
-    @NotNull
-    @Positive
-    private int limit;
+	@NotNull
+	@Positive
+	private int limit;
 
-    @Size(message = "Cannot be less than 0")
-    private int offset;
+	@Size(message = "Cannot be less than 0")
+	private int offset;
 
-    // Constructor could be expanded if sorting is needed
-    private Sort sort;
+	// Constructor could be expanded if sorting is needed
+	private Sort sort;
 
-    public OffsetBasedPaginator(int limit, int offset) {
-        if (limit < 1) {
-            throw new IllegalArgumentException("Limit must not be less than one!");
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset index must not be less than zero!");
-        }
-        this.limit = limit;
-        this.offset = offset;
-    }
+	public OffsetBasedPaginator(int limit, int offset) {
+		if (limit < 1) {
+			throw new IllegalArgumentException("Limit must not be less than one!");
+		}
+		if (offset < 0) {
+			throw new IllegalArgumentException("Offset index must not be less than zero!");
+		}
+		this.limit = limit;
+		this.offset = offset;
+	}
 
-    @Override
-    public boolean isPaged() {
-        return Pageable.super.isPaged();
-    }
+	@Override
+	public boolean isPaged() {
+		return Pageable.super.isPaged();
+	}
 
-    @Override
-    public boolean isUnpaged() {
-        return Pageable.super.isUnpaged();
-    }
+	@Override
+	public boolean isUnpaged() {
+		return Pageable.super.isUnpaged();
+	}
 
-    @Override
-    public int getPageNumber() {
-        return offset / limit;
-    }
+	@Override
+	public int getPageNumber() {
+		return offset / limit;
+	}
 
-    @Override
-    public int getPageSize() {
-        return limit;
-    }
+	@Override
+	public int getPageSize() {
+		return limit;
+	}
 
-    @Override
-    public long getOffset() {
-        return offset;
-    }
+	@Override
+	public long getOffset() {
+		return offset;
+	}
 
-    @Override
-    public Sort getSort() {
-        return sort;
-    }
+	@Override
+	public Sort getSort() {
+		return sort;
+	}
 
-    @Override
-    public Sort getSortOr(Sort sort) {
-        return Pageable.super.getSortOr(sort);
-    }
+	@Override
+	public Sort getSortOr(Sort sort) {
+		return Pageable.super.getSortOr(sort);
+	}
 
-    @Override
-    public Pageable next() {
-        // Typecast possible because number of entries cannot be bigger than integer (primary key is integer)
-        return new OffsetBasedPaginator(getPageSize(), (int) (getOffset() + getPageSize()));
-    }
+	@Override
+	public Pageable next() {
+		// Typecast possible because number of entries cannot be bigger than integer (primary key is integer)
+		return new OffsetBasedPaginator(getPageSize(), (int) (getOffset() + getPageSize()));
+	}
 
-    public Pageable previous() {
-        // The integers are positive. Subtracting does not let them become bigger than integer.
-        return hasPrevious() ?
-                new OffsetBasedPaginator(getPageSize(), (int) (getOffset() - getPageSize())) : this;
-    }
+	public Pageable previous() {
+		// The integers are positive. Subtracting does not let them become bigger than integer.
+		return hasPrevious() ?
+				new OffsetBasedPaginator(getPageSize(), (int) (getOffset() - getPageSize())) : this;
+	}
 
-    @Override
-    public Pageable previousOrFirst() {
-        return hasPrevious() ? previous() : first();
-    }
+	@Override
+	public Pageable previousOrFirst() {
+		return hasPrevious() ? previous() : first();
+	}
 
-    @Override
-    public Pageable first() {
-        return new OffsetBasedPaginator(getPageSize(), 0);
-    }
+	@Override
+	public Pageable first() {
+		return new OffsetBasedPaginator(getPageSize(), 0);
+	}
 
-    @Override
-    public Pageable withPage(int pageNumber) {
-        return this;
-    }
+	@Override
+	public Pageable withPage(int pageNumber) {
+		return this;
+	}
 
-    @Override
-    public boolean hasPrevious() {
-        return offset > limit;
-    }
+	@Override
+	public boolean hasPrevious() {
+		return offset > limit;
+	}
 
-    @Override
-    public Optional<Pageable> toOptional() {
-        return Pageable.super.toOptional();
-    }
+	@Override
+	public Optional<Pageable> toOptional() {
+		return Pageable.super.toOptional();
+	}
 }

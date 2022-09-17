@@ -55,7 +55,7 @@ public class ItemService {
 	}
 
 	public List<ItemResponseDto> getAll(Long ownerId, Integer from, Integer size) {
-		Pageable page = new OffsetBasedPaginator(size,from, Sort.by(Sort.Direction.DESC, "id"));
+		Pageable page = new OffsetBasedPaginator(size, from, Sort.by(Sort.Direction.DESC, "id"));
 		return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId, page).stream()
 				.map(i -> enrichItemWithLastBookingsAndComments(ownerId, i))
 				.map(mapper::itemToResponseWithBookings)
@@ -66,7 +66,7 @@ public class ItemService {
 		if (name.isBlank()) {
 			return new ArrayList<>();
 		}
-		Pageable page = new OffsetBasedPaginator(size,from, Sort.by(Sort.Direction.DESC, "id"));
+		Pageable page = new OffsetBasedPaginator(size, from, Sort.by(Sort.Direction.DESC, "id"));
 		return itemRepository.searchAvailable(name, page).stream().map(mapper::itemToResponse).collect(Collectors.toList());
 	}
 
@@ -168,7 +168,7 @@ public class ItemService {
 				booking.stream()
 						.noneMatch(
 								b -> b.getStatus().equals(BookingStatus.APPROVED) &&
-								b.getDateEnd().isBefore(LocalDateTime.now())
+										b.getDateEnd().isBefore(LocalDateTime.now())
 						)
 		) {
 			throw new BadRequestException("Пользователь id = " + userId + " не арендовывал предмет id = " + itemId);
