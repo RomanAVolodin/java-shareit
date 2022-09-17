@@ -67,7 +67,8 @@ public class ItemRequestControllerTest {
 				.requesterId(1L)
 				.created(LocalDateTime.now())
 				.build();
-		itemRequestCreateDto = new ItemRequestCreateDto("desc");
+		itemRequestCreateDto = new ItemRequestCreateDto();
+		itemRequestCreateDto.setDescription("descr");
 	}
 
 	@Test

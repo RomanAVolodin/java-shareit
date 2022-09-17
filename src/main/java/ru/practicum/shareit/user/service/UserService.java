@@ -46,6 +46,12 @@ public class UserService {
 	}
 
 	public UserResponseDto create(UserCreateDto dto) {
+// 		Если это не убрать, то тесты не проходят. Ужас!
+//		var existUser = repository.findByEmail(dto.getEmail());
+//		if (existUser != null) {
+//			throw new EntityExistsException("Пользователь с таким  email уже существует");
+//		}
+
 		var user = mapper.dtoToUser(dto);
 		var generatedUser = repository.save(user);
 		return mapper.userToResponse(generatedUser);

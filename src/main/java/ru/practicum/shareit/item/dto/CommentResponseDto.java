@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
+
 import java.time.LocalDateTime;
 
 
@@ -11,17 +12,17 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponseDto {
 
-	@NonNull
-	private Long id;
+    @NonNull
+    private Long id;
 
-	@NonNull
-	private String text;
+    @NonNull
+    private String text;
 
-	private Long itemId;
+    private Long itemId;
 
-	private Long authorId;
+    private Long authorId;
 
-	private LocalDateTime created;
+    private LocalDateTime created;
 
-	private String authorName;
+    private String authorName;
 }

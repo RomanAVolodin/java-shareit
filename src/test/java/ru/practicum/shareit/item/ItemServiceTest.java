@@ -56,7 +56,11 @@ public class ItemServiceTest {
 		secondUser = User.builder().id(2L).name("Second User").build();
 
 		item = Item.builder().id(1L).ownerId(firstUser.getId()).available(true).name("Ершик").description("Descr").build();
-		itemCreateDto = new ItemCreateDto(item.getName(), item.getDescription(), true, 1L);
+		itemCreateDto = new ItemCreateDto();
+		itemCreateDto.setName(item.getName());
+		itemCreateDto.setDescription(item.getDescription());
+		itemCreateDto.setAvailable(true);
+		itemCreateDto.setRequestId(1L);
 		itemResponseDto = ItemResponseDto.builder()
 				.id(item.getId())
 				.name(item.getName())

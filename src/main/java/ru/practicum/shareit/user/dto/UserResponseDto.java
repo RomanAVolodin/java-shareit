@@ -7,8 +7,9 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserResponseDto {
 
 	@NonNull

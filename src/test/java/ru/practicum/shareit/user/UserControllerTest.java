@@ -53,13 +53,15 @@ public class UserControllerTest {
 				.build();
 
 		userResponseDto = UserResponseDto.builder().id(1L).name("First User").email("mail@mail.ru").build();
-		userCreateDto = new UserCreateDto("mail@mail.ru", "First User");
+		userCreateDto = new UserCreateDto();
+		userCreateDto.setEmail("ad@min.ru");
+		userCreateDto.setName("name");
 	}
 
 
 	@Test
 	void emptyUserIsNotOk() throws Exception {
-		var userDto = new UserCreateDto("aaaaa", "aaaa");
+		var userDto = new UserCreateDto();
 
 		this.mvc.perform(post("/users")
 						.characterEncoding(StandardCharsets.UTF_8)
@@ -85,12 +87,15 @@ public class UserControllerTest {
 	@Test
 	void patchReturnNotFound() throws Exception {
 		when(userService.update(any(), any())).thenThrow(new ItemNotFoundException("не найден пользователь"));
+		var dto = new UserUpdateDto();
+		dto.setEmail("ad@min.ru");
+		dto.setName("name");
 
 		this.mvc.perform(patch("/users/1")
 						.characterEncoding(StandardCharsets.UTF_8)
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON)
-						.content(mapper.writeValueAsString(new UserUpdateDto("mail@mail.ru", "name"))))
+						.content(mapper.writeValueAsString(dto)))
 				.andExpect(status().isNotFound());
 	}
 }

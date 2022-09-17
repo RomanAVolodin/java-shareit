@@ -39,7 +39,9 @@ public class UserServiceTest {
 	void setUp() {
 		firstUser = User.builder().id(1L).name("First User").email("mail@mail.ru").build();
 		userResponseDto = UserResponseDto.builder().id(1L).name("First User").email("mail@mail.ru").build();
-		userCreateDto = new UserCreateDto("mail@mail.ru", "First User");
+		userCreateDto = new UserCreateDto();
+		userCreateDto.setEmail("ad@min.ru");
+		userCreateDto.setName("name");
 	}
 
 	@Test

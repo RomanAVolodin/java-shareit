@@ -10,7 +10,7 @@ import static ru.practicum.shareit.shared.Config.SIZE_COMMENT_TEXT;
 @Data
 public class CommentCreateDto {
 
-	@NotBlank(message = "Текст сообщения не может быть пустым")
-	@Size(max = SIZE_COMMENT_TEXT, message = "Описание не должно превышать " + SIZE_COMMENT_TEXT + " символов")
-	private String text;
+    @NotBlank(message = "Текст сообщения не может быть пустым")
+    @Size(max = SIZE_COMMENT_TEXT, message = "Описание не должно превышать " + SIZE_COMMENT_TEXT + " символов")
+    private String text;
 }

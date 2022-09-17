@@ -23,69 +23,70 @@ import java.util.stream.Collectors;
 @Service
 public class ItemRequestService {
 
-	private final ItemRequestRepository itemRequestRepository;
-	private final UserRepository userRepository;
-	private final ItemRepository itemRepository;
-	private final RequestMapper mapper;
+    private final ItemRequestRepository itemRequestRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final RequestMapper mapper;
 
-	@Autowired
-	public ItemRequestService(ItemRequestRepository itemRequestRepository,
-							  UserRepository userRepository,
-							  ItemRepository itemRepository,
-							  RequestMapper mapper
-	) {
-		this.itemRequestRepository = itemRequestRepository;
-		this.userRepository = userRepository;
-		this.itemRepository = itemRepository;
-		this.mapper = mapper;
-	}
+    @Autowired
+    public ItemRequestService(ItemRequestRepository itemRequestRepository,
+                              UserRepository userRepository,
+                              ItemRepository itemRepository,
+                              RequestMapper mapper
+    ) {
 
-	public ItemRequestResponseDto getRequestByID(Long userId, Long requestId) {
-		var user = userRepository.findById(userId).orElseThrow(
-				() -> new ItemNotFoundException("User was not found by id: " + userId)
-		);
-		var itemRequest = itemRequestRepository.findById(requestId).orElseThrow(
-				() -> new ItemNotFoundException("Item request was not found by id: " + requestId)
-		);
-		return mapper.requestToResponse(enrichItemRequestWithItems(itemRequest));
-	}
+        this.itemRequestRepository = itemRequestRepository;
+        this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
+        this.mapper = mapper;
+    }
 
-	public List<ItemRequestResponseDto> getRequestListByPages(Long userId, Integer from, Integer size) {
-		var user = userRepository.findById(userId).orElseThrow(
-				() -> new ItemNotFoundException("User was not found by id: " + userId)
-		);
-		Pageable page = new OffsetBasedPaginator(size, from, Sort.by(Sort.Direction.DESC, "created"));
+    public ItemRequestResponseDto getRequestByID(Long userId, long requestId) {
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new ItemNotFoundException("User was not found by id: " + userId)
+        );
+        var itemRequest = itemRequestRepository.findById(requestId).orElseThrow(
+                () -> new ItemNotFoundException("Item request was not found by id: " + requestId)
+        );
+        return mapper.requestToResponse(enrichItemRequestWithItems(itemRequest));
+    }
 
-		return itemRequestRepository.findAll(page).getContent().stream()
-				.filter(ir -> !ir.getRequesterId().equals(user.getId()))
-				.map(this::enrichItemRequestWithItems)
-				.map(mapper::requestToResponse)
-				.collect(Collectors.toList());
-	}
+    public List<ItemRequestResponseDto> getRequestListByPages(Long userId, Integer from, Integer size) {
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new ItemNotFoundException("User was not found by id: " + userId)
+        );
+        Pageable page = new OffsetBasedPaginator(size,from,Sort.by(Sort.Direction.DESC, "created"));
 
-	public List<ItemRequestResponseDto> getRequestListByRequester(Long requesterId) {
-		var user = userRepository.findById(requesterId).orElseThrow(
-				() -> new ItemNotFoundException("User was not found by id: " + requesterId)
-		);
-		return itemRequestRepository.getItemRequestByRequesterIdOrderByCreatedDesc(user.getId()).stream()
-				.map(this::enrichItemRequestWithItems)
-				.map(mapper::requestToResponse)
-				.collect(Collectors.toList());
-	}
+        return itemRequestRepository.findAll(page).getContent().stream()
+                .filter(ir -> !ir.getRequesterId().equals(user.getId()))
+                .map(this::enrichItemRequestWithItems)
+                .map(mapper::requestToResponse)
+                .collect(Collectors.toList());
+    }
 
-	@Transactional
-	public ItemRequestResponseDto create(ItemRequestCreateDto itemRequestDto, Long requesterId) {
-		var user = userRepository.findById(requesterId).orElseThrow(
-				() -> new ItemNotFoundException("User was not found by id: " + requesterId)
-		);
-		ItemRequest itemRequest = mapper.dtoToRequest(itemRequestDto, user.getId());
-		ItemRequest newRequest = itemRequestRepository.save(itemRequest);
-		return mapper.requestToResponse(enrichItemRequestWithItems(newRequest));
-	}
+    public List<ItemRequestResponseDto> getRequestListByRequester(Long requesterId) {
+        var user = userRepository.findById(requesterId).orElseThrow(
+                () -> new ItemNotFoundException("User was not found by id: " + requesterId)
+        );
+        return itemRequestRepository.getItemRequestByRequesterIdOrderByCreatedDesc(user.getId()).stream()
+                .map(this::enrichItemRequestWithItems)
+                .map(mapper::requestToResponse)
+                .collect(Collectors.toList());
+    }
 
-	private ItemRequest enrichItemRequestWithItems(ItemRequest itemRequest) {
-		var items = itemRepository.findAllByRequestIdOrderByIdAsc(itemRequest.getId());
-		itemRequest.setItems(items);
-		return itemRequest;
-	}
+    @Transactional
+    public ItemRequestResponseDto create(ItemRequestCreateDto itemRequestDto, Long requesterId) {
+        var user = userRepository.findById(requesterId).orElseThrow(
+                () -> new ItemNotFoundException("User was not found by id: " + requesterId)
+        );
+        ItemRequest itemRequest = mapper.dtoToRequest(itemRequestDto, user.getId());
+        ItemRequest newRequest = itemRequestRepository.save(itemRequest);
+        return mapper.requestToResponse(enrichItemRequestWithItems(newRequest));
+    }
+
+    private ItemRequest enrichItemRequestWithItems(ItemRequest itemRequest) {
+        var items = itemRepository.findAllByRequestIdOrderByIdAsc(itemRequest.getId());
+        itemRequest.setItems(items);
+        return itemRequest;
+    }
 }

@@ -1,14 +1,13 @@
 package ru.practicum.shareit.requests.dto;
 
-import lombok.*;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import static ru.practicum.shareit.shared.Config.SIZE_REQUEST_DESCRIPTION;
 
-@Getter
-@Setter
+@Data
 public class ItemRequestCreateDto {
 
 	@NotBlank

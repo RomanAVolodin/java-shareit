@@ -1,10 +1,7 @@
 package ru.practicum.shareit.requests.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.persistence.*;
@@ -31,7 +28,7 @@ public class ItemRequest {
 	private Long requesterId;
 
 	@Column(nullable = false)
-	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime created;
 
 	@Transient

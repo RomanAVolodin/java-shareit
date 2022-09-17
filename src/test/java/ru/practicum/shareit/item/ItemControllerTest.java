@@ -46,7 +46,12 @@ public class ItemControllerTest {
 	void setUp() {
 		itemResponseDto = ItemResponseDto.builder().id(1L).name("Item1").available(true).ownerId(1L).build();
 		itemResponseDto2 = ItemResponseDto.builder().id(1L).name("Item1").available(true).ownerId(1L).build();
-		itemCreateDto = new ItemCreateDto("name", "descr", true, 1L);
+		itemCreateDto = new ItemCreateDto();
+		itemCreateDto.setName("name");
+		itemCreateDto.setDescription("descr");
+		itemCreateDto.setAvailable(true);
+		itemCreateDto.setRequestId(1L);
+
 
 		mvc = MockMvcBuilders
 				.standaloneSetup(itemController)
@@ -102,10 +107,10 @@ public class ItemControllerTest {
 
 	@Test
 	void createShouldFail() throws Exception {
-		itemCreateDto.setName("");
+		var dto = new ItemCreateDto();
 		this.mvc.perform(post("/items")
 						.header("X-Sharer-User-Id", "1")
-						.content(mapper.writeValueAsString(itemCreateDto))
+						.content(mapper.writeValueAsString(dto))
 						.characterEncoding(StandardCharsets.UTF_8)
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON))
