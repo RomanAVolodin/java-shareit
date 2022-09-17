@@ -1,9 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -11,9 +8,8 @@ import javax.validation.constraints.Size;
 import static ru.practicum.shareit.shared.Config.SIZE_ITEM_DESCRIPTION;
 import static ru.practicum.shareit.shared.Config.SIZE_ITEM_TITLE;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 public class ItemCreateDto {
 
 	@NotBlank(message = "Краткое название не может быть пустым")
