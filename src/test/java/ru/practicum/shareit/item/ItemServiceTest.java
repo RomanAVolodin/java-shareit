@@ -30,11 +30,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @Import(ValidationAutoConfiguration.class)
 public class ItemServiceTest {
-	User firstUser;
-	User secondUser;
-	Item item;
-	ItemCreateDto itemCreateDto;
-	ItemResponseDto itemResponseDto;
+	private User firstUser;
+	private User secondUser;
+	private Item item;
+	private ItemCreateDto itemCreateDto;
+	private ItemResponseDto itemResponseDto;
 	@Mock
 	private ItemRepository itemRepository;
 	@Mock

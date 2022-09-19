@@ -35,13 +35,10 @@ public class UserControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 	@InjectMocks
-	UserController controller;
-
-	UserCreateDto userCreateDto;
-
-	UserResponseDto userResponseDto;
-
-	MockMvc mvc;
+	private UserController controller;
+	private UserCreateDto userCreateDto;
+	private UserResponseDto userResponseDto;
+	private MockMvc mvc;
 	@Mock
 	private UserService userService;
 

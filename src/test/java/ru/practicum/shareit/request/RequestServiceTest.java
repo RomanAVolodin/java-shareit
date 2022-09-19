@@ -31,10 +31,10 @@ import static org.mockito.Mockito.when;
 @Import(ValidationAutoConfiguration.class)
 public class RequestServiceTest {
 
-	User firstUser;
-	ItemRequest itemRequest;
-	Item item;
-	ItemRequestResponseDto itemRequestResponseDto;
+	private User firstUser;
+	private ItemRequest itemRequest;
+	private Item item;
+	private ItemRequestResponseDto itemRequestResponseDto;
 	@Mock
 	private ItemRequestRepository itemRequestRepository;
 	@Mock

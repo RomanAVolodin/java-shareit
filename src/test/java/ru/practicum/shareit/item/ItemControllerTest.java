@@ -33,9 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ItemControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
-	ItemResponseDto itemResponseDto;
-	ItemResponseDto itemResponseDto2;
-	ItemCreateDto itemCreateDto;
+	private ItemResponseDto itemResponseDto;
+	private ItemResponseDto itemResponseDto2;
+	private ItemCreateDto itemCreateDto;
 	@Mock
 	private ItemService itemService;
 	@InjectMocks

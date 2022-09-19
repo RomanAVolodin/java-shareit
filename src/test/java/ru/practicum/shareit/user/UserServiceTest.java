@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 @Import(ValidationAutoConfiguration.class)
 public class UserServiceTest {
 
-	User firstUser;
-	UserResponseDto userResponseDto;
-	UserCreateDto userCreateDto;
+	private User firstUser;
+	private UserResponseDto userResponseDto;
+	private UserCreateDto userCreateDto;
 	@Mock
 	private UserRepository userRepository;
 	@Mock

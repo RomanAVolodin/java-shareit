@@ -78,7 +78,7 @@ public class BookingService {
 		if (booking.getStatus() == BookingStatus.APPROVED && approved) {
 			throw new BadRequestException("Бронирование уже подтверждено");
 		}
-		if (!item.getOwnerId().equals(user.getId())) {
+		if (!Objects.equals(item.getOwnerId(), user.getId())) {
 			throw new ItemNotFoundException("Подтверждение доступно только владельцу");
 		}
 
@@ -102,7 +102,7 @@ public class BookingService {
 		var item = itemRepository.findById(booking.getItemId()).orElseThrow(
 				() -> new ItemNotFoundException("Предмет не найден по id")
 		);
-		if (!booking.getBookerId().equals(user.getId()) && !item.getOwnerId().equals(userId)) {
+		if (!Objects.equals(booking.getBookerId(), user.getId()) && !Objects.equals(item.getOwnerId(), user.getId())) {
 			throw new ItemNotFoundException("Пользователь не автор бронирования и не владелец предмета");
 		}
 		return bookingMapper.bookingToResponse(booking);

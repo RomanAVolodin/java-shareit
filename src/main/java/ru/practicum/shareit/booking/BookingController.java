@@ -48,7 +48,7 @@ public class BookingController {
 		return bookingService.findById(userId, bookingId);
 	}
 
-	@GetMapping()
+	@GetMapping
 	public List<BookingResponseDto> findAllForUser(
 			@RequestHeader("X-Sharer-User-Id") Long userId,
 			@RequestParam(value = "state", required = false) BookingState state,

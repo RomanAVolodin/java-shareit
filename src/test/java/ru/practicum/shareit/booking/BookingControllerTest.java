@@ -47,13 +47,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookingControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
-	BookingCreateDto bookingCreateDto;
-	BookingResponseDto bookingResponseDto;
-	String tomorrowStr;
-	String afterTomorrowStr;
-	User firstUser;
-	User secondUser;
-	Item item;
+	private BookingCreateDto bookingCreateDto;
+	private BookingResponseDto bookingResponseDto;
+	private String tomorrowStr;
+	private String afterTomorrowStr;
+	private User firstUser;
+	private Item item;
 	@Mock
 	private BookingService bookingService;
 	@InjectMocks
@@ -77,7 +76,6 @@ public class BookingControllerTest {
 		afterTomorrowStr = afterTomorow.truncatedTo(ChronoUnit.SECONDS).format(dtf);
 
 		firstUser = User.builder().id(1L).name("First User").build();
-		secondUser = User.builder().id(2L).name("Second User").build();
 		item = Item.builder().id(1L).ownerId(firstUser.getId()).available(true).name("Ершик").build();
 
 		bookingCreateDto = new BookingCreateDto();

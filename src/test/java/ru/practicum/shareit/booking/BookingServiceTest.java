@@ -38,12 +38,12 @@ import static org.mockito.Mockito.*;
 @Import(ValidationAutoConfiguration.class)
 public class BookingServiceTest {
 
-	BookingCreateDto bookingCreateDto;
-	Item item;
-	ItemResponseDto itemResponseDto;
-	User firstUser;
-	User secondUser;
-	Booking booking;
+	private BookingCreateDto bookingCreateDto;
+	private Item item;
+	private ItemResponseDto itemResponseDto;
+	private User firstUser;
+	private User secondUser;
+	private Booking booking;
 	@Mock
 	private BookingRepository bookingRepository;
 	@Mock
