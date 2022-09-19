@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -13,6 +15,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.shared.OffsetBasedPaginator;
 import ru.practicum.shareit.shared.exceptions.AccessDeniedException;
 import ru.practicum.shareit.shared.exceptions.BadRequestException;
 import ru.practicum.shareit.shared.exceptions.ItemNotFoundException;
@@ -51,18 +54,20 @@ public class ItemService {
 		this.commentMapper = commentMapper;
 	}
 
-	public List<ItemResponseDto> getAll(Long ownerId) {
-		return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId).stream()
+	public List<ItemResponseDto> getAll(Long ownerId, Integer from, Integer size) {
+		Pageable page = new OffsetBasedPaginator(size, from, Sort.by(Sort.Direction.DESC, "id"));
+		return itemRepository.findAllByOwnerIdOrderByIdAsc(ownerId, page).stream()
 				.map(i -> enrichItemWithLastBookingsAndComments(ownerId, i))
 				.map(mapper::itemToResponseWithBookings)
 				.collect(Collectors.toList());
 	}
 
-	public List<ItemResponseDto> searchAvailable(String name) {
+	public List<ItemResponseDto> searchAvailable(String name, Integer from, Integer size) {
 		if (name.isBlank()) {
 			return new ArrayList<>();
 		}
-		return itemRepository.searchAvailable(name).stream().map(mapper::itemToResponse).collect(Collectors.toList());
+		Pageable page = new OffsetBasedPaginator(size, from, Sort.by(Sort.Direction.DESC, "id"));
+		return itemRepository.searchAvailable(name, page).stream().map(mapper::itemToResponse).collect(Collectors.toList());
 	}
 
 	public ItemResponseDto getById(Long id) {
@@ -79,8 +84,7 @@ public class ItemService {
 		var user = userRepository.findById(userId).orElseThrow(
 				() -> new ItemNotFoundException("User was not found by id: " + userId)
 		);
-		item = enrichItemWithLastBookingsAndComments(user.getId(), item);
-		return mapper.itemToResponseWithBookings(item);
+		return mapper.itemToResponseWithBookings(enrichItemWithLastBookingsAndComments(user.getId(), item));
 	}
 
 	private Item enrichItemWithLastBookingsAndComments(Long userId, Item item) {
@@ -164,7 +168,7 @@ public class ItemService {
 				booking.stream()
 						.noneMatch(
 								b -> b.getStatus().equals(BookingStatus.APPROVED) &&
-								b.getDateEnd().isBefore(LocalDateTime.now())
+										b.getDateEnd().isBefore(LocalDateTime.now())
 						)
 		) {
 			throw new BadRequestException("Пользователь id = " + userId + " не арендовывал предмет id = " + itemId);

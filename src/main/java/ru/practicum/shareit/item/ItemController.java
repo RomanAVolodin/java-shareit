@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
@@ -20,13 +21,21 @@ public class ItemController {
 	private final ItemService service;
 
 	@GetMapping
-	public List<ItemResponseDto> findAll(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-		return service.getAll(ownerId);
+	public List<ItemResponseDto> findAll(
+			@RequestHeader("X-Sharer-User-Id") Long ownerId,
+			@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+			@RequestParam(name = "size", defaultValue = "10") @Min(1) int size
+	) {
+		return service.getAll(ownerId, from, size);
 	}
 
 	@GetMapping("/search")
-	public List<ItemResponseDto> searchAvailable(@RequestParam(required = true) String text) {
-		return service.searchAvailable(text);
+	public List<ItemResponseDto> searchAvailable(
+			@RequestParam(required = true) String text,
+			@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+			@RequestParam(name = "size", defaultValue = "10") @Min(1) int size
+	) {
+		return service.searchAvailable(text, from, size);
 	}
 
 	@PostMapping
@@ -50,11 +59,11 @@ public class ItemController {
 			@RequestHeader("X-Sharer-User-Id") Long ownerId,
 			@PathVariable("id") Long id,
 			@Valid @RequestBody ItemUpdateDto dto
-			) {
+	) {
 		return service.update(id, ownerId, dto);
 	}
 
-	@DeleteMapping (value = "/{id}")
+	@DeleteMapping(value = "/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public void remove(
 			@PathVariable(name = "id") Long id,

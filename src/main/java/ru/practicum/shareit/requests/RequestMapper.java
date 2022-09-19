@@ -2,25 +2,25 @@ package ru.practicum.shareit.requests;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.requests.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.requests.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.requests.model.ItemRequest;
-import ru.practicum.shareit.user.UserMapper;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class RequestMapper {
 
-	private final UserMapper userMapper;
+	private final ItemMapper itemMapper;
 
-	public ItemRequest dtoToRequest(ItemRequestCreateDto dto, Long id, Long requesterId, LocalDate created) {
+	public ItemRequest dtoToRequest(ItemRequestCreateDto dto, Long requesterId) {
 		return ItemRequest.builder()
-				.id(id)
 				.description(dto.getDescription())
 				.requesterId(requesterId)
-				.created(created)
+				.created(LocalDateTime.now())
 				.build();
 	}
 
@@ -29,6 +29,7 @@ public class RequestMapper {
 				.id(request.getId())
 				.description(request.getDescription())
 				.requesterId(request.getRequesterId())
+				.items(request.getItems().stream().map(itemMapper::itemToResponse).collect(Collectors.toList()))
 				.created(request.getCreated())
 				.build();
 	}

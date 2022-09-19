@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,9 +13,11 @@ import java.time.LocalDateTime;
 public class BookingCreateDto {
 
 	@FutureOrPresent(message = "Дата начала не может быть в прошлом")
+	@NotNull
 	private LocalDateTime start;
 
 	@FutureOrPresent(message = "Дата окончания не может быть в прошлом")
+	@NotNull
 	private LocalDateTime end;
 
 	@NonNull

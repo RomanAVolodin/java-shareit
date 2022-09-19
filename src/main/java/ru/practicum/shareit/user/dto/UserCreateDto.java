@@ -10,8 +10,8 @@ public class UserCreateDto {
 
 	@NotBlank(message = "Почта не может быть пустой")
 	@Email(message = "Email недействительный")
-	private final String email;
+	private String email;
 
 	@NotBlank(message = "Имя не может быть пустым")
-	private final String name;
+	private String name;
 }

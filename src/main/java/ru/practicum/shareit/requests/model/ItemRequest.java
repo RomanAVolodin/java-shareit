@@ -1,24 +1,40 @@
 package ru.practicum.shareit.requests.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
 @Data
+@Table(name = "item_requests")
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ItemRequest {
 
-	@NonNull
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NonNull
+	@Column(name = "description")
 	private String description;
 
-	@NonNull
+	@Column(name = "requester_id")
 	private Long requesterId;
 
-	@NonNull
-	private LocalDate created;
+	@Column(nullable = false)
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+	private LocalDateTime created;
+
+	@Transient
+	@Builder.Default
+	private List<Item> items = new ArrayList<>();
 }

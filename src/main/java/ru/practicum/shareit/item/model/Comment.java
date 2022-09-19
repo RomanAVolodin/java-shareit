@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -13,21 +16,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Comment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    private String text;
+	private String text;
 
-    @Column(name = "item_id")
-    private Long itemId;
+	@Column(name = "item_id")
+	private Long itemId;
 
-    @Column(name = "author_id")
-    private Long authorId;
+	@Column(name = "author_id")
+	private Long authorId;
 
-    @Builder.Default
-    private LocalDateTime created = LocalDateTime.now();
+	@Builder.Default
+	private LocalDateTime created = LocalDateTime.now();
 
-    @Transient
-    private User author;
+	@Transient
+	private User author;
 }

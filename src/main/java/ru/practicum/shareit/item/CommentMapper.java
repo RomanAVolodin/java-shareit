@@ -11,23 +11,23 @@ import ru.practicum.shareit.user.model.User;
 @RequiredArgsConstructor
 public class CommentMapper {
 
-    public Comment dtoToComment(CommentCreateDto dto, Long itemId, User user) {
-        return Comment.builder()
-                .text(dto.getText())
-                .itemId(itemId)
-                .authorId(user.getId())
-                .author(user)
-                .build();
-    }
+	public Comment dtoToComment(CommentCreateDto dto, Long itemId, User user) {
+		return Comment.builder()
+				.text(dto.getText())
+				.itemId(itemId)
+				.authorId(user.getId())
+				.author(user)
+				.build();
+	}
 
-    public CommentResponseDto commentToResponse(Comment comment) {
-        return CommentResponseDto.builder()
-                .id(comment.getId())
-                .text(comment.getText())
-                .itemId(comment.getItemId())
-                .authorId(comment.getAuthorId())
-                .created(comment.getCreated())
-                .authorName(comment.getAuthor().getName())
-                .build();
-    }
+	public CommentResponseDto commentToResponse(Comment comment) {
+		return CommentResponseDto.builder()
+				.id(comment.getId())
+				.text(comment.getText())
+				.itemId(comment.getItemId())
+				.authorId(comment.getAuthorId())
+				.created(comment.getCreated())
+				.authorName(comment.getAuthor().getName())
+				.build();
+	}
 }

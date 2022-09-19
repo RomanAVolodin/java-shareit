@@ -8,7 +8,7 @@ import javax.validation.constraints.Email;
 public class UserUpdateDto {
 
 	@Email(message = "Email недействительный")
-	private final String email;
+	private String email;
 
-	private final String name;
+	private String name;
 }
